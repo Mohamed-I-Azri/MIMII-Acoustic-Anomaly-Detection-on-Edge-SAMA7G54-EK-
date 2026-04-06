@@ -475,6 +475,31 @@ boot
 ```sh
 arecord -D hw:0,0 -f S16_LE -r 16000 -c 4 -d 10 /data/recording.wav
 ```
+## Recording results
+After comparing the original audio with the recorded audio using MATLAB these are the expected results forthe example provided:
+
+--- RMS Energy ---
+Original:  0.2245
+Recorded:  0.2430
+
+--- Dominant Frequency ---
+Original:  237.00 Hz
+Recorded:  237.00 Hz
+
+--- Spectral Centroid ---
+Original:  1520.36 Hz
+Recorded:  1420.73 Hz
+
+--- Crest Factor ---
+Original:  4.4553
+Recorded:  4.1159
+
+--- Spectral MSE (0 = identical) ---
+Score: 0.00000065
+
+--- Spectral Correlation (1 = identical) ---
+Correlation: 0.7332
+
 
 ---
 
