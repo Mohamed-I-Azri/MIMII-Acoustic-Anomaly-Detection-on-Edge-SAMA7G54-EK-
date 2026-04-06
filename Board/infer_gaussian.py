@@ -81,7 +81,7 @@ def roc_auc(labels, scores):
     if n_pos == 0 or n_neg == 0: return float('nan')
     auc = float(abs(np.trapz(np.cumsum(labels)/n_pos,
                               np.cumsum(1-labels)/n_neg)))
-    return max(auc)   # always return > 0.5 equivalent
+    return max(auc, 1 - auc)   # always return > 0.5 equivalent
 
 
 if __name__ == "__main__":
