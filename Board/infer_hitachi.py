@@ -11,7 +11,7 @@ HOP_LENGTH = 512
 N_MELS     = 64
 N_FRAMES   = 5
 
-# ── Mel filterbank ────────────────────────────────────────────────────────────
+# ── Mel filterbank ─────────────────────────────────────────────────────────────
 def _build_mel_fb():
     def hz2mel(h): return 2595.0 * np.log10(1.0 + h / 700.0)
     def mel2hz(m): return 700.0 * (10.0 ** (m / 2595.0) - 1.0)
@@ -58,18 +58,21 @@ def extract_features(y):
 
     idx    = np.arange(N_FFT)[None, :] + HOP_LENGTH * np.arange(n_stft)[:, None]
     idx    = np.clip(idx, 0, len(y) - 1)
-    frames = y[idx] * WINDOW                                   # (n_stft, N_FFT)
+    frames = y[idx] * WINDOW                                    # (n_stft, N_FFT)
 
     spec   = np.fft.rfft(frames, n=N_FFT)
-    power  = (spec.real**2 + spec.imag**2).astype(np.float32) # (n_stft, n_freqs)
-    mel    = power @ MEL_FB.T                                  # (n_stft, n_mels)
-    logmel = 10.0 * np.log10(mel + 2.22e-16)                  # dB, (n_stft, n_mels)
-    logmel = logmel.T                                          # (n_mels, n_stft)
+    power  = (spec.real**2 + spec.imag**2).astype(np.float32)  # (n_stft, n_freqs)
+    mel    = power @ MEL_FB.T                                   # (n_stft, n_mels)
+    logmel = 10.0 * np.log10(mel + 2.22e-16)                   # dB, (n_stft, n_mels)
+    logmel = logmel.T                                           # (n_mels, n_stft)
 
     T      = logmel.shape[1]
     n_vecs = T - N_FRAMES + 1
     if n_vecs < 1:
-        return logmel.T.reshape(1, -1).astype(np.float32)
+        # Pad with silence so we can still produce one valid 320-dim vector
+        pad    = np.full((N_MELS, N_FRAMES - T), -80.0, dtype=np.float32)
+        logmel = np.concatenate([logmel, pad], axis=1)
+        n_vecs = 1
 
     # Stack 5 consecutive frames column-major (matches MATLAB flatten)
     vecs = np.zeros((n_vecs, N_MELS * N_FRAMES), dtype=np.float32)
@@ -87,8 +90,8 @@ def score_file(interpreter, frames):
     for i, frame in enumerate(frames):
         interpreter.set_tensor(inp_idx, frame.reshape(1, -1))
         interpreter.invoke()
-        pred    = interpreter.get_tensor(out_idx)[0]
-        mse[i]  = np.mean((frame - pred) ** 2)
+        pred   = interpreter.get_tensor(out_idx)[0]
+        mse[i] = np.mean((frame - pred) ** 2)
     return float(mse.mean())
 
 
