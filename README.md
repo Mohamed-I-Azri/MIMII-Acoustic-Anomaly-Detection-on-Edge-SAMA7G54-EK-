@@ -72,8 +72,6 @@ mimii-anomaly-detection/
 
 ```
 numpy
-librosa
-scikit-learn
 tensorflow==2.8.0
 soundfile
 matplotlib
