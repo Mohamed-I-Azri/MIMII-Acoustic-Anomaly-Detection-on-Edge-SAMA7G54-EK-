@@ -24,7 +24,7 @@ Acoustic anomaly detection for industrial fans using the MIMII dataset, deployed
 
 This project implements and evaluates two unsupervised anomaly detection approaches on the MIMII fan/6dB subset:
 
-- **Gaussian model** — fits a multivariate Gaussian on log-mel features extracted from normal audio; anomaly score is the Mahalanobis distance. Fast and lightweight.
+- **Gaussian model** — fits a multivariate Gaussian on log-mel and RMS features extracted from normal audio; anomaly score is the Mahalanobis distance. Fast and lightweight.
 - **Hitachi autoencoder** — trains a dense autoencoder on spectral features; anomaly score is reconstruction error. Higher accuracy at the cost of inference time.
 
 Both models are trained on a Windows PC using Python 3.8 and TensorFlow 2.8, then deployed to the SAMA7G54-EK (ARM Cortex-A7) running Linux4SAM, using numpy and tflite-runtime for inference.
